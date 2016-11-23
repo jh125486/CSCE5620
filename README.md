@@ -1,4 +1,4 @@
-# CSCE5620 Project - Univesity of North Texas
+# CSCE5620 Project - University of North Texas
 KubOS *CC1120* drivers
 
 ## Team
@@ -8,10 +8,14 @@ KubOS *CC1120* drivers
 * Dr. Song Fu (Dependable Computing Lab)
 
 ## KubOS info
-* https://github.com/kubostech/kubos-core
-* http://docs.kubos.co/0.1.4/md_docs_sdk-installing.html
+* [KubOS Core](https://github.com/kubostech/kubos-core)
+* [SDK Installation](http://docs.kubos.co/0.1.4/md_docs_sdk-installing.html)
+
+## Boards
+* [TI MSP430](http://www.ti.com/tool/MSP-EXP430F5529LP)
+* [STM32](http://www.st.com/en/evaluation-tools/stm32f4discovery.html)
 
 ## Ideas & Examples
-* https://github.com/librespacefoundation/upsat-comms-software
-* https://github.com/TheDorkKnight/transceiver
-* https://github.com/HydroSense/HydroSense_cc1120/tree/master/examples/HydroSense_radio_test
+* [Upsat](https://github.com/librespacefoundation/upsat-comms-software)
+* [Dork Knight](https://github.com/TheDorkKnight/transceiver)
+* [HydroSense](https://github.com/HydroSense/HydroSense_cc1120/tree/master/examples/HydroSense_radio_test)
