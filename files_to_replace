@@ -1,0 +1,18 @@
+examples/HydroSense_radio_test/HydroSense_radio_test.ino
+        digitalWrite(cs_cc1120, HIGH);
+        digitalWrite(cc1120_reset, HIGH);
+        digitalWrite(cs_cc1120, LOW);
+        digitalWrite(cs_cc1120, HIGH);
+        digitalWrite(cs_cc1120, LOW);
+        digitalWrite(cs_cc1120, HIGH);
+        digitalWrite(cs_cc1120, LOW);
+        digitalWrite(cs_cc1120, HIGH);
+src/hal_spi_rf_trxeb.cpp
+        digitalWrite(cs_cc1120, HIGH);
+        digitalWrite(reset_cc1120, HIGH);
+        digitalWrite(cs_cc1120, LOW);
+        digitalWrite(cs_cc1120, HIGH);
+        digitalWrite(cs_cc1120, LOW);
+        digitalWrite(cs_cc1120, HIGH);
+        digitalWrite(cs_cc1120, LOW);
+        digitalWrite(cs_cc1120, HIGH);
