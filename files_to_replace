@@ -1,3 +1,4 @@
+The following is the digitalWrite functions to replace
 examples/HydroSense_radio_test/HydroSense_radio_test.ino
         digitalWrite(cs_cc1120, HIGH);
         digitalWrite(cc1120_reset, HIGH);
@@ -16,3 +17,35 @@ src/hal_spi_rf_trxeb.cpp
         digitalWrite(cs_cc1120, HIGH);
         digitalWrite(cs_cc1120, LOW);
         digitalWrite(cs_cc1120, HIGH);
+
+
+The following is the SPI.* functions to replace
+examples/HydroSense_radio_test/HydroSense_radio_test.ino
+        SPI.begin();
+        SPI.beginTransaction(s);
+        SPI.transfer( READ_BIT | strobe);
+        SPI.endTransaction();
+        SPI.beginTransaction(s);
+        SPI.transfer( value );
+        SPI.endTransaction();
+        SPI.beginTransaction(s);
+        SPI.transfer(READ_BIT | EXTENDED_ADDRESS);
+        SPI.transfer(extended_address);
+        SPI.transfer(0xff);
+        SPI.endTransaction();
+src/hal_spi_rf_trxeb.cpp
+        SPI.begin();
+        SPI.beginTransaction(spi_settings);
+        SPI.transfer(accessType|addrByte);
+        SPI.endTransaction();
+        SPI.beginTransaction(spi_settings);
+        SPI.transfer(accessType|extAddr);
+        SPI.transfer(regAddr);
+        SPI.endTransaction();
+        SPI.beginTransaction(spi_settings);
+        SPI.transfer(cmd);
+        SPI.endTransaction();
+        SPI.transfer(0);
+        SPI.transfer(0);
+        SPI.transfer(*pData);
+        SPI.transfer(*pData);
