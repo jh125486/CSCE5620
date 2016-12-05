@@ -20,8 +20,10 @@
 #include "cc1120.h"
 
 uint8_t i;
+uint16_t temperature_sum = 0;
+uint8_t temperature_count = 0;
 
-void task_example(void *p)
+void task_read_temp(void *p)
 {
     static int x = 0;
     int ret;
@@ -50,6 +52,8 @@ void task_example(void *p)
         tmp102_read_temperature(&temp);
         printf("temp - %d\r\n", temp);
         tx = (uint8_t)temp;
+        temperature_sum += temp;
+        temperature_count++;
 
         /* Send single byte over spi and then receive it */
         strobe(SNOP);
@@ -88,6 +92,48 @@ void task_example(void *p)
     }
 }
 
+void task_set_fan_speed(void *p)
+{
+    uint16_t speed = 0, new_speed = 0;
+    uint8_t average_temperature;
+
+    while (1)
+    {
+        printf("\t\t\tFan speed: %d\t%d[%d]\r\n", speed, temperature_sum, temperature_count);
+        if (temperature_count)
+        {
+            average_temperature = temperature_sum / temperature_count;
+
+            if (average_temperature > 80)
+            {
+                new_speed = 1000;
+            }
+            else if (average_temperature > 75)
+            {
+                new_speed = 750;
+            }
+            else if (average_temperature > 70)
+            {
+                new_speed = 500;
+            }
+            else
+            {
+                new_speed = 250;
+            }
+
+            if (new_speed != speed)
+            {
+                speed = new_speed;
+                printf("New fan speed: %d\r\n", speed);
+            }
+
+            temperature_sum = 0;
+            temperature_count = 0;
+        }
+        vTaskDelay(10000 / portTICK_RATE_MS);
+    }
+}
+
 int main(void)
 {
     k_uart_console_init();
@@ -113,7 +159,8 @@ int main(void)
     P2OUT = BIT1;
 #endif
 
-    xTaskCreate(task_example, "Example Task", configMINIMAL_STACK_SIZE * 2, NULL, 2, NULL);
+    xTaskCreate(task_read_temp, "Read temp Task", configMINIMAL_STACK_SIZE * 2, NULL, 2, NULL);
+    xTaskCreate(task_set_fan_speed, "Set fan speed Task", configMINIMAL_STACK_SIZE * 2, NULL, 2, NULL);
 
     vTaskStartScheduler();
 
