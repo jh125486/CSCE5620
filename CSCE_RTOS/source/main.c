@@ -50,7 +50,7 @@ void task_read_temp(void *p)
     while (1)
     {
         tmp102_read_temperature(&temp);
-        printf("temp - %d\r\n", temp);
+        printf("temp read - %d\r\n", temp);
         tx = (uint8_t)temp;
         temperature_sum += temp;
         temperature_count++;
