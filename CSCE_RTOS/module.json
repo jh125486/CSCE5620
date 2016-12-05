@@ -1,0 +1,15 @@
+{
+  "bin": "./source",
+  "license": "Apache-2.0",
+  "name": "CSCE_RTOS",
+  "repository": {
+    "url": "ssh://git@github.com/jh125486/CSCE5620_Project/CSCE_RTOS",
+    "type": "git"
+  },
+  "version": "0.1.0",
+  "dependencies": {
+    "kubos-rt": "kubostech/kubos-rt#~0.1.0"
+  },
+  "homepage": "https://github.com/kubostech/kubos-spi-example",
+  "description": "Example app demonstrating kubos-rt's spi interface"
+}

@@ -31,3 +31,6 @@
 # Debug files
 *.dSYM/
 *.su
+CSCE_RTOS/build
+CSCE_RTOS/yotta_targets
+CSCE_RTOS/yotta_modules
