@@ -7,6 +7,8 @@
 #include "task.h"
 #include "timers.h"
 
+#include "cc112x_spi.h"
+#include "hal_spi_rf_trxeb.h"
 #include "kubos-core/modules/klog.h"
 #include "kubos-hal/gpio.h"
 #include "kubos-hal/i2c.h"
@@ -16,12 +18,36 @@
 // TMP102 temperature driver
 #include "tmp102.h"
 
-// radio driver
-#include "cc1120.h"
+union cc1120_status {
+    struct
+    {
+        uint8_t reserved : 4;
+        uint8_t STATE : 3;
+        uint8_t CHIP_RDY : 1;
+        uint8_t PREV_STATE : 3;
+    } fields;
+    uint8_t data;
+};
+
+union cc1120_status status;
 
 uint8_t i;
 uint16_t temperature_sum = 0;
 uint8_t temperature_count = 0;
+
+#define FAN_IDLE 250
+#define FAN_LOW 500
+#define FAN_MED 750
+#define FAN_HIGH 1000
+#define TEMP_TX_THRESHOLD 85
+
+void debugPrintSTATE(int line)
+{
+    if (status.fields.PREV_STATE == status.fields.STATE)
+        return;
+    printf("[%d] STATE changed from %d to %d\r\n", line, status.fields.PREV_STATE, status.fields.STATE);
+    status.fields.PREV_STATE = status.fields.STATE;
+}
 
 void task_read_temp(void *p)
 {
@@ -47,84 +73,82 @@ void task_read_temp(void *p)
     /* Initialize spi bus with configuration */
     k_spi_init(SPI_BUS, &conf);
 
+    uint8_t prev_state = status.fields.STATE;
+
     while (1)
     {
         tmp102_read_temperature(&temp);
-        printf("temp read - %d\r\n", temp);
-        tx = (uint8_t)temp;
         temperature_sum += temp;
         temperature_count++;
+        printf("temp read - %d [%d: %d]\r\n", temp, temperature_count, temperature_sum);
 
         /* Send single byte over spi and then receive it */
-        strobe(SNOP);
-        printf("cc1120_status.CHIP_RDY: %x", status.st.CHIP_RDY);
-        printf(" cc1120_status..STATE: %x\r\n", status.st.STATE);
+        status.data = trxSpiCmdStrobe(CC112X_SNOP);
+        debugPrintSTATE(__LINE__);
 
-        val = readExtendedRegister(PARTNUMBER);
-        printf("Partnumber: %x\r\n", val);
-
-        val = readExtendedRegister(PARTVERSION);
-        printf("Partversion: %x\r\n", val);
-
-        writeRegister(FREQ0, i);
-        printf("write Freq0: %x\r\n", i);
-
-        val = readRegister(FREQ0);
-        printf("Freq0: %x\r\n", val);
-
-        if (i & 0x1)
+        // only TX if temp is greater or equal to temperature threshold
+        if (temp >= TEMP_TX_THRESHOLD)
         {
-            strobe(SFSTXON);
+            printf("TX[%d] temp %d!\r\n", i++, temp);
+            // strobe to on
+            status.data = trxSpiCmdStrobe(CC112X_STX);
+            debugPrintSTATE(__LINE__);
+            // put the radio into frequency on state
+            status.data = trxSpiCmdStrobe(CC112X_SNOP);
+            debugPrintSTATE(__LINE__);
+
+            vTaskDelay(10);
+
+            // load up FIFO
+            tx = (uint8_t)temp;
+            char dataToSend[] = "\05hello";
+            cc112xSpiWriteTxFifo((uint8_t *)dataToSend, 6);
+
+            vTaskDelay(10);
+
+            // send an STX
+            status.data = trxSpiCmdStrobe(CC112X_STX);
+            debugPrintSTATE(__LINE__);
+
+            // flush the transmit strobe if there is an error
+            if (status.fields.STATE == 7)
+            {
+                printf("\r\nERROR: Transmit FIFO error\r\n");
+                trxSpiCmdStrobe(CC112X_SFTX);
+            }
         }
         else
         {
-            strobe(SXOFF);
+            k_gpio_write(FAKE_CS, 0);
         }
-
-        // k_gpio_write(FAKE_CS, 0);
-        // k_spi_write_read(SPI_BUS, &tx, &rx, 1);
-        // k_gpio_write(FAKE_CS, 1);
-
-        /* print out over console */
-        printf("tx: %d\trx: %d\r\n", tx, rx);
-
-        vTaskDelay(1000 / portTICK_RATE_MS);
+        vTaskDelay(980 / portTICK_RATE_MS);
     }
 }
 
 void task_set_fan_speed(void *p)
 {
-    uint16_t speed = 0, new_speed = 0;
+    uint16_t speed = FAN_IDLE, new_speed = FAN_IDLE;
     uint8_t average_temperature;
 
     while (1)
     {
-        printf("\t\t\tFan speed: %d\t%d[%d]\r\n", speed, temperature_sum, temperature_count);
         if (temperature_count)
         {
             average_temperature = temperature_sum / temperature_count;
-
-            if (average_temperature > 80)
-            {
-                new_speed = 1000;
-            }
+            printf("  Fan speed: %d\tAverage Temp: %d\r\n", speed, average_temperature);
+            if (average_temperature > TEMP_TX_THRESHOLD)
+                new_speed = FAN_HIGH;
+            else if (average_temperature > 80)
+                new_speed = FAN_MED;
             else if (average_temperature > 75)
-            {
-                new_speed = 750;
-            }
-            else if (average_temperature > 70)
-            {
-                new_speed = 500;
-            }
+                new_speed = FAN_LOW;
             else
-            {
-                new_speed = 250;
-            }
+                new_speed = FAN_IDLE;
 
             if (new_speed != speed)
             {
                 speed = new_speed;
-                printf("New fan speed: %d\r\n", speed);
+                printf("! New speed set: %d\r\n", speed);
             }
 
             temperature_sum = 0;
@@ -158,6 +182,9 @@ int main(void)
 
     P2OUT = BIT1;
 #endif
+
+    // set up cc1120 RF
+    configureRadio();
 
     xTaskCreate(task_read_temp, "Read temp Task", configMINIMAL_STACK_SIZE * 2, NULL, 2, NULL);
     xTaskCreate(task_set_fan_speed, "Set fan speed Task", configMINIMAL_STACK_SIZE * 2, NULL, 2, NULL);
