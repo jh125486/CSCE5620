@@ -1,0 +1,6 @@
+{
+  "build": {
+    "target": "msp430f5529-gcc,*",
+    "targetSetExplicitly": true
+  }
+}
