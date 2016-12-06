@@ -1,0 +1,61 @@
+KubOS RF and temperature driver
+CC1120 and TMP102
+6 Dec 2016
+
+Nick Tompkins, Matthew Davidson, Jacob Hochstetler
+CSCE5620 - RTOS (Embedded)
+https://github.com/jh125486/CSCE5620_Project
+
+#.background images/college_of_engineering_green.jpg
+
+* Project
+
+1. Create FreeRTOS drivers for TMP102 and CC1120 using KubOS middleware.
+2. Test drivers with real-time tasks
+3. Simulate a fan's speed with real temperature data
+4. Send the temperature if a critical threshold is reached
+
+* KubOS
+
+- Satellite Control Middleware
+- Focus on embedded microsatellites
+- Uses FreeRTOS
+- Founded 2015 in Denton, TX
+
+.link http://www.kubos.co/
+.image images/kubos_logo.png
+
+* CC1120 (RF IC)
+
+.image images/cc1120_state_diagram.png
+.caption CC1120 state diagram
+
+* CC1120 (SPI interface)
+
+.image images/SPI.png _ 600
+.caption Interface diagram
+
+* CC1120 (continued)
+
+.image images/cc1120_schematic.png
+.caption CC1120 schematic
+
+* TMP102 (Temperature Sensor)
+
+.image images/TMP102.gif
+.caption TMP102 schematic
+
+.image images/i2c_signal_diagram.gif _ 700
+.caption I2C signal diagram
+
+* MSP430
+
+- Texas Instruments board
+
+* Results
+
+.image images/scope_screenshot.png _ 1000
+.caption Screenshot of digital oscilloscope during transmission
+
+Demo time!
+
