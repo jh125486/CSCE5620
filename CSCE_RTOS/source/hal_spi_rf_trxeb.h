@@ -3,7 +3,7 @@
 *
 *  Description: Common header file for spi access to the different tranceiver
 *               radios. Supports CC1101/CC112X radios
-*				 
+*
 *  Copyright (C) 2013 Texas Instruments Incorporated - http://www.ti.com/
 *
 *
@@ -47,10 +47,10 @@ extern "C" {
  * INCLUDES
  */
 //#include <msp430.h>
-#include "hal_types.h"
-#include "hal_defs.h"
-#include "kubos-hal/spi.h"
+#include "common.h"
 #include "kubos-hal/gpio.h"
+#include "kubos-hal/spi.h"
+#include <stdio.h>
 
 /******************************************************************************
  * CONSTANTS
@@ -73,17 +73,15 @@ extern "C" {
 
 #define FAKE_CS K_LED_RED
 
-#define RADIO_BURST_ACCESS   0x40
-#define RADIO_SINGLE_ACCESS  0x00
-#define RADIO_READ_ACCESS    0x80
-#define RADIO_WRITE_ACCESS   0x00
-
+#define RADIO_BURST_ACCESS 0x40
+#define RADIO_SINGLE_ACCESS 0x00
+#define RADIO_READ_ACCESS 0x80
+#define RADIO_WRITE_ACCESS 0x00
 
 /* Bit fields in the chip status byte */
-#define STATUS_CHIP_RDYn_BM             0x80
-#define STATUS_STATE_BM                 0x70
-#define STATUS_FIFO_BYTES_AVAILABLE_BM  0x0F
-
+#define STATUS_CHIP_RDYn_BM 0x80
+#define STATUS_STATE_BM 0x70
+#define STATUS_FIFO_BYTES_AVAILABLE_BM 0x0F
 
 /******************************************************************************
  * MACROS
@@ -114,9 +112,9 @@ extern "C" {
 
 typedef struct
 {
-  uint16_t  addr;
-  uint8_t   data;
-}registerSetting_t;
+  uint16_t addr;
+  uint8_t data;
+} registerSetting_t;
 
 typedef uint8_t rfStatus_t;
 
@@ -124,14 +122,14 @@ typedef uint8_t rfStatus_t;
  * PROTOTYPES
  */
 
-void trxRfSpiInterfaceInit(uint8_t prescalerValue);///////////////////////////////////////////////////////
+void trxRfSpiInterfaceInit(uint8_t prescalerValue); ///////////////////////////////////////////////////////
 rfStatus_t trx8BitRegAccess(uint8_t accessType, uint8_t addrByte, uint8_t *pData, uint16_t len);
 rfStatus_t trxSpiCmdStrobe(uint8_t cmd);
 
 /* CC112X specific prototype function */
 rfStatus_t trx16BitRegAccess(uint8_t accessType, uint8_t extAddr, uint8_t regAddr, uint8_t *pData, uint8_t len);
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
 #endif //HAL_SPI_RF_TRXEB_H

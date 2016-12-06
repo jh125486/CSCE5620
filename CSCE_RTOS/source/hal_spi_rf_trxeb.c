@@ -37,7 +37,6 @@
 *
 *******************************************************************************/
 
-
 /******************************************************************************
  * INCLUDES
  */
@@ -56,8 +55,7 @@
 /******************************************************************************
  * LOCAL FUNCTIONS
  */
-static void trxReadWriteBurstSingle(uint8_t addr,uint8_t *pData,uint16_t len) ;
-
+static void trxReadWriteBurstSingle(uint8_t addr, uint8_t *pData, uint16_t len);
 
 /******************************************************************************
  * FUNCTIONS
@@ -83,7 +81,7 @@ void trxRfSpiInterfaceInit(uint8_t prescalerValue)
   // set slaveSelectPin as output
   //pinMode(cs_cc1120, OUTPUT);
   //digitalWrite(cs_cc1120, HIGH);
-k_gpio_write(FAKE_CS, 1);
+  k_gpio_write(FAKE_CS, 1);
   // set the reset bits to OUTPUT
   //pinMode(reset_cc1120, OUTPUT);
   //digitalWrite(reset_cc1120, HIGH);
@@ -91,7 +89,6 @@ k_gpio_write(FAKE_CS, 1);
   // initialize SPI
   //SPI.begin();
 }
-
 
 /*******************************************************************************
  * @fn          trx8BitRegAccess
@@ -117,25 +114,25 @@ k_gpio_write(FAKE_CS, 1);
 rfStatus_t trx8BitRegAccess(uint8_t accessType, uint8_t addrByte, uint8_t *pData, uint16_t len)
 {
   // this is for non-extended access
-  uint8_t  readValue;
-volatile uint8_t  rx = 0;
+  uint8_t readValue;
+  volatile uint8_t rx = 0;
   // start the transaction and assert the CS
- // SPI.beginTransaction(spi_settings);
-  
+  // SPI.beginTransaction(spi_settings);
+
   //digitalWrite(cs_cc1120, LOW);
-k_gpio_write(FAKE_CS, 0);
+  k_gpio_write(FAKE_CS, 0);
 
   // transfer data
-  uint8_t  tx = accessType|addrByte;
- // readValue = SPI.transfer(accessType|addrByte);
+  uint8_t tx = accessType | addrByte;
+  // readValue = SPI.transfer(accessType|addrByte);
   k_spi_write_read(SPI_BUS, &tx, &rx, 1);
-  readValue=rx;
-  trxReadWriteBurstSingle(accessType|addrByte,pData,len);
+  readValue = rx;
+  trxReadWriteBurstSingle(accessType | addrByte, pData, len);
 
   // finish up the transaction
   //digitalWrite(cs_cc1120, HIGH);
   //SPI.endTransaction();
-k_gpio_write(FAKE_CS, 1);
+  k_gpio_write(FAKE_CS, 1);
   return readValue;
 }
 
@@ -164,21 +161,20 @@ rfStatus_t trx16BitRegAccess(uint8_t accessType, uint8_t extAddr, uint8_t regAdd
 {
   // this is for non-extended access
   uint8_t readValue;
-volatile uint8_t  rx = 0;
+  volatile uint8_t rx = 0;
   // start the transaction and assert the CS
   //SPI.beginTransaction(spi_settings);
   //igitalWrite(cs_cc1120, LOW);
   k_gpio_write(FAKE_CS, 0);
-unit8_t tx =accessType|extAddr;
- // readValue = SPI.transfer(accessType|extAddr);
- k_spi_write_read(SPI_BUS, &tx, &rx, 1);
- readValue=rx;
+  uint8_t tx = accessType | extAddr;
+  // readValue = SPI.transfer(accessType|extAddr);
+  k_spi_write_read(SPI_BUS, &tx, &rx, 1);
+  readValue = rx;
   //SPI.transfer(regAddr);
-  tx=redAddr;
+  tx = regAddr;
   k_spi_write_read(SPI_BUS, &tx, &rx, 1);
 
-
-  trxReadWriteBurstSingle(accessType|extAddr, pData, len);
+  trxReadWriteBurstSingle(accessType | extAddr, pData, len);
 
   // finish up the transaction
   //digitalWrite(cs_cc1120, HIGH);
@@ -206,17 +202,17 @@ unit8_t tx =accessType|extAddr;
 rfStatus_t trxSpiCmdStrobe(uint8_t cmd)
 {
   uint8_t rc;
-  volatile uint8_t  rx = 0;
+  volatile uint8_t rx = 0;
   //SPI.beginTransaction(spi_settings);
   //digitalWrite(cs_cc1120, LOW);
   k_gpio_write(FAKE_CS, 0);
 
-unit8_t tx =cmd;
- k_spi_write_read(SPI_BUS, &tx, &rx, 1);
- rc=rx;
+  uint8_t tx = cmd;
+  k_spi_write_read(SPI_BUS, &tx, &rx, 1);
+  rc = rx;
   //rc = SPI.transfer(cmd);
 
-    k_gpio_write(FAKE_CS, 1);
+  k_gpio_write(FAKE_CS, 1);
   //SPI.endTransaction();
 
   return rc;
@@ -251,53 +247,51 @@ unit8_t tx =cmd;
  *
  * @return      void
  */
-static void trxReadWriteBurstSingle(uint8_t addr,uint8_t *pData,uint16_t len)
+static void trxReadWriteBurstSingle(uint8_t addr, uint8_t *pData, uint16_t len)
 {
-	uint16_t i;
-    volatile uint8_t rx = 0;
-    volatile uint8_t tx = 0;
-	/* Communicate len number of bytes: if RX - the procedure sends 0x00 to push bytes from slave*/
-  if(addr&RADIO_READ_ACCESS)
+  uint16_t i;
+  volatile uint8_t rx = 0;
+  volatile uint8_t tx = 0;
+  /* Communicate len number of bytes: if RX - the procedure sends 0x00 to push bytes from slave*/
+  if (addr & RADIO_READ_ACCESS)
   {
-    if(addr&RADIO_BURST_ACCESS)
+    if (addr & RADIO_BURST_ACCESS)
     {
       for (i = 0; i < len; i++)
       {
-          
-          k_spi_write_read(SPI_BUS, &tx, &rx, 1);
-          *pData = rx;
-          pData++;
-      }
-    }
-    else
-    {
-     // *pData = SPI.transfer(0);
-          k_spi_write_read(SPI_BUS, &tx, &rx, 1);
-          *pData = rx;
-    }
-  }
-  else
-  {
-    if(addr&RADIO_BURST_ACCESS)
-    {
-      /* Communicate len number of bytes: if TX - the procedure doesn't overwrite pData */
-      for (i = 0; i < len; i++)
-      {
-        //SPI.transfer(*pData);
-               tx=*pData;
-                  k_spi_write_read(SPI_BUS, &tx, &rx, 1);
-          
+
+        k_spi_write_read(SPI_BUS, &tx, &rx, 1);
+        *pData = rx;
         pData++;
       }
     }
     else
     {
-                tx=*pData;
-                k_spi_write_read(SPI_BUS, &tx, &rx, 1);
-     // SPI.transfer(*pData);
+      // *pData = SPI.transfer(0);
+      k_spi_write_read(SPI_BUS, &tx, &rx, 1);
+      *pData = rx;
+    }
+  }
+  else
+  {
+    if (addr & RADIO_BURST_ACCESS)
+    {
+      /* Communicate len number of bytes: if TX - the procedure doesn't overwrite pData */
+      for (i = 0; i < len; i++)
+      {
+        //SPI.transfer(*pData);
+        tx = *pData;
+        k_spi_write_read(SPI_BUS, &tx, &rx, 1);
+
+        pData++;
+      }
+    }
+    else
+    {
+      tx = *pData;
+      k_spi_write_read(SPI_BUS, &tx, &rx, 1);
+      // SPI.transfer(*pData);
     }
   }
   return;
 }
-
-

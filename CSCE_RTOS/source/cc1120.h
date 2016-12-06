@@ -1,6 +1,7 @@
 #ifndef CC1120_H_INCLUDED
 #define CC1120_H_INCLUDED
 
+#include "common.h"
 #include "kubos-hal/gpio.h"
 #include "kubos-hal/spi.h"
 
@@ -19,10 +20,6 @@
 // extended registers
 #define PARTNUMBER 0x8f
 #define PARTVERSION 0x90
-
-// Fake Chipselect pin
-#define FAKE_CS K_LED_RED
-#define SPI_BUS K_SPI1
 
 void strobe(uint8_t);
 uint8_t transferByte(uint8_t, uint8_t);
