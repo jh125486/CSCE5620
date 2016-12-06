@@ -10,9 +10,12 @@ https://github.com/jh125486/CSCE5620_Project
 
 * Project
 
-1. Create FreeRTOS drivers for TMP102 and CC1120 using KubOS middleware.
+1. Create KubOS drivers for TMP102 and CC1120 using KubOS-HAL.
+
 2. Test drivers with real-time tasks
+
 3. Simulate a fan's speed with real temperature data
+
 4. Send the temperature if a critical threshold is reached
 
 * KubOS
@@ -24,6 +27,26 @@ https://github.com/jh125486/CSCE5620_Project
 
 .link http://www.kubos.co/
 .image images/kubos_logo.png
+
+* Working with KubOS
+Docker-based SDK
+
+.image images/docker.png
+
+* Building with KubOS
+Yotta build environment configurator
+
+.image images/yotta.png
+
+* MSP430
+
+- Made by Texas Instruments (MSP 16-bit)
+.image images/msp_diagram.png
+
+* STM32F407
+
+- Made by ST Microelectronics (ARM 32-bit)
+.image images/stm32.png 500 _
 
 * CC1120 (RF IC)
 
@@ -42,20 +65,16 @@ https://github.com/jh125486/CSCE5620_Project
 
 * TMP102 (Temperature Sensor)
 
-.image images/TMP102.gif
+.image images/TMP102.gif 300 _
 .caption TMP102 schematic
 
 .image images/i2c_signal_diagram.gif _ 700
 .caption I2C signal diagram
 
-* MSP430
-
-- Texas Instruments board
-
 * Results
 
 .image images/scope_screenshot.png _ 1000
-.caption Screenshot of digital oscilloscope during transmission
+.caption Screenshot of RSSI during transmission
 
 Demo time!
 
