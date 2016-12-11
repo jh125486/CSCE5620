@@ -39,7 +39,7 @@ uint8_t temperature_count = 0;
 #define FAN_LOW 500
 #define FAN_MED 750
 #define FAN_HIGH 1000
-#define TEMP_TX_THRESHOLD 85
+#define TEMP_TX_THRESHOLD 80
 
 void debugPrintSTATE(int line)
 {
@@ -138,9 +138,9 @@ void task_set_fan_speed(void *p)
             printf("  Fan speed: %d\tAverage Temp: %d\r\n", speed, average_temperature);
             if (average_temperature > TEMP_TX_THRESHOLD)
                 new_speed = FAN_HIGH;
-            else if (average_temperature > 80)
-                new_speed = FAN_MED;
             else if (average_temperature > 75)
+                new_speed = FAN_MED;
+            else if (average_temperature > 70)
                 new_speed = FAN_LOW;
             else
                 new_speed = FAN_IDLE;
